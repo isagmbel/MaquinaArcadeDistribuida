@@ -22,8 +22,7 @@ Este proyecto implementa una Máquina Arcade distribuida con tres juegos clásic
 *   **Separación de Lógica:** Clara separación entre la lógica de los juegos, la interfaz gráfica y la comunicación de red.
 
 ## Estructura del Proyecto
-Use code with caution.
-Markdown
+```
 MAQUINADEARCADE/
 ├── cliente/
 │ ├── init.py
@@ -57,6 +56,8 @@ MAQUINADEARCADE/
 ├── main.py # Script principal para iniciar el cliente (menú)
 ├── README.md # Este archivo
 └── requirements.txt # Dependencias del proyecto
+```
+
 ## Requisitos Previos
 
 *   Python 3.8 o superior.
