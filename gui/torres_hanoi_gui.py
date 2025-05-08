@@ -15,23 +15,23 @@ class TorresHanoiGUI:
         self.ventana = pygame.display.set_mode((self.ancho, self.alto))
         pygame.display.set_caption("Torres de Hanoi")
         
-        # Colores
-        self.FONDO = (240, 240, 240)
-        self.BASE = (139, 69, 19)  # Marrón
-        self.POSTE = (160, 82, 45)  # Marrón más claro
+        # Colores pastel
+        self.FONDO = (250, 240, 245)  # Rosa pastel muy claro
+        self.BASE = (210, 180, 140)   # Marrón pastel
+        self.POSTE = (200, 170, 130)   # Marrón pastel más claro
         self.DISCOS = [
-            (255, 0, 0),    # Rojo
-            (0, 255, 0),    # Verde
-            (0, 0, 255),    # Azul
-            (255, 255, 0),  # Amarillo
-            (255, 0, 255), # Magenta
-            (0, 255, 255), # Cian
-            (255, 128, 0), # Naranja
-            (128, 0, 128)  # Púrpura
+            (255, 182, 193),  # Rosa claro
+            (180, 230, 180),  # Verde pastel
+            (180, 180, 230),  # Azul pastel
+            (255, 255, 180),  # Amarillo pastel
+            (230, 180, 230), # Lila pastel
+            (180, 230, 230),  # Turquesa pastel
+            (255, 200, 180), # Melocotón pastel
+            (220, 200, 220)  # Lavanda
         ]
-        self.TEXTO = (0, 0, 0)
-        self.BOTON = (70, 130, 200)
-        self.BOTON_HOVER = (100, 160, 230)
+        self.TEXTO = (100, 80, 100)    # Morado oscuro
+        self.BOTON = (200, 200, 220)    # Gris lila pastel
+        self.BOTON_HOVER = (220, 220, 240)  # Gris lila más claro
         
         # Dimensiones
         self.base_altura = 20
@@ -55,26 +55,42 @@ class TorresHanoiGUI:
         self.resolviendo = False
         self.pasos_solucion = []
         self.paso_actual = 0
+        self.hover_torre = None
+        self.hover_boton = None
     
     def dibujar_torres(self):
         # Dibujar base
         pygame.draw.rect(self.ventana, self.BASE, 
                         (50, self.base_y, self.ancho-100, self.base_altura))
         
-        # Dibujar postes
-        for x in self.torre_pos_x:
-            pygame.draw.rect(self.ventana, self.POSTE, 
+        # Dibujar postes con efecto hover
+        for i, x in enumerate(self.torre_pos_x):
+            color = (min(self.POSTE[0] + 20, 255), 
+                    min(self.POSTE[1] + 20, 255), 
+                    min(self.POSTE[2] + 20, 255)) if self.hover_torre == i else self.POSTE
+            
+            pygame.draw.rect(self.ventana, color, 
                             (x - self.poste_ancho//2, self.base_y - self.poste_altura, 
                              self.poste_ancho, self.poste_altura))
         
-        # Dibujar discos
+        # Dibujar discos con efecto hover
         for torre_idx, torre in enumerate(self.juego.torres):
             for disco_idx, disco in enumerate(torre):
                 ancho = self.disco_ancho_base - (self.disco_reduccion * (self.discos - disco))
                 x = self.torre_pos_x[torre_idx] - ancho // 2
                 y = self.base_y - self.base_altura - (disco_idx + 1) * self.disco_altura
                 
-                color = self.DISCOS[(disco - 1) % len(self.DISCOS)]
+                color_idx = (disco - 1) % len(self.DISCOS)
+                color = self.DISCOS[color_idx]
+                
+                # Efecto hover para discos en la torre seleccionada
+                if self.torre_origen == torre_idx and disco_idx == len(torre) - 1:
+                    pygame.draw.rect(self.ventana, 
+                                    (min(color[0] + 30, 255),
+                                    min(color[1] + 30, 255),
+                                    min(color[2] + 30, 255)), 
+                                    (x - 5, y - 5, ancho + 10, self.disco_altura + 10))
+                
                 pygame.draw.rect(self.ventana, color, (x, y, ancho, self.disco_altura))
                 pygame.draw.rect(self.ventana, self.TEXTO, (x, y, ancho, self.disco_altura), 2)
     
@@ -86,25 +102,31 @@ class TorresHanoiGUI:
         self.ventana.blit(movimientos_texto, (20, 20))
         
         if self.juego.esta_resuelto():
-            felicitacion = self.fuente_titulo.render("¡Resuelto!", True, (0, 150, 0))
+            felicitacion = self.fuente_titulo.render("¡Resuelto!", True, (100, 180, 100))
             self.ventana.blit(felicitacion, 
                             (self.ancho//2 - felicitacion.get_width()//2, 50))
         
-        # Dibujar botones
+        # Dibujar botones con efecto hover
         botones = [
             {"texto": "Reiniciar", "pos": (self.ancho - 220, 20), "accion": self.juego.reiniciar},
             {"texto": "Resolver", "pos": (self.ancho - 220, 60), "accion": self.resolver_automatico},
             {"texto": "Deshacer", "pos": (self.ancho - 220, 100), "accion": self.juego.deshacer_ultimo_movimiento}
         ]
         
+        self.hover_boton = None
         mouse_pos = pygame.mouse.get_pos()
+        
         for boton in botones:
             x, y = boton["pos"]
-            hover = x <= mouse_pos[0] <= x + 150 and y <= mouse_pos[1] <= y + 30
+            rect = pygame.Rect(x, y, 150, 30)
+            hover = rect.collidepoint(mouse_pos)
+            
+            if hover:
+                self.hover_boton = boton["texto"]
             
             color = self.BOTON_HOVER if hover else self.BOTON
-            pygame.draw.rect(self.ventana, color, (x, y, 150, 30))
-            pygame.draw.rect(self.ventana, self.TEXTO, (x, y, 150, 30), 2)
+            pygame.draw.rect(self.ventana, color, rect)
+            pygame.draw.rect(self.ventana, self.TEXTO, rect, 2)
             
             texto = self.fuente.render(boton["texto"], True, self.TEXTO)
             self.ventana.blit(texto, (x + 75 - texto.get_width()//2, y + 15 - texto.get_height()//2))
@@ -125,6 +147,15 @@ class TorresHanoiGUI:
         self._generar_solucion(n-1, auxiliar, destino, origen)
     
     def manejar_eventos(self):
+        mouse_pos = pygame.mouse.get_pos()
+        
+        # Detectar hover en torres
+        self.hover_torre = None
+        for i, x in enumerate(self.torre_pos_x):
+            if (x - 100 <= mouse_pos[0] <= x + 100 and 
+                self.base_y - self.poste_altura <= mouse_pos[1] <= self.base_y):
+                self.hover_torre = i
+        
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 pygame.quit()
@@ -132,7 +163,6 @@ class TorresHanoiGUI:
             
             if evento.type == pygame.MOUSEBUTTONDOWN and not self.resolviendo:
                 # Verificar clic en botones
-                mouse_pos = pygame.mouse.get_pos()
                 botones = [
                     {"rect": pygame.Rect(self.ancho - 220, 20, 150, 30), "accion": self.juego.reiniciar},
                     {"rect": pygame.Rect(self.ancho - 220, 60, 150, 30), "accion": self.resolver_automatico},
@@ -145,18 +175,15 @@ class TorresHanoiGUI:
                         return
                 
                 # Verificar clic en torres
-                for torre_idx, x in enumerate(self.torre_pos_x):
-                    if (x - 100 <= mouse_pos[0] <= x + 100 and 
-                        self.base_y - self.poste_altura <= mouse_pos[1] <= self.base_y):
-                        
-                        if self.torre_origen is None:
-                            if self.juego.torres[torre_idx]:
-                                self.torre_origen = torre_idx
-                        else:
-                            if self.juego.mover_disco(self.torre_origen, torre_idx):
-                                if self.juego.esta_resuelto():
-                                    print("¡Felicidades! Has resuelto el puzzle.")
-                            self.torre_origen = None
+                if self.hover_torre is not None:
+                    if self.torre_origen is None:
+                        if self.juego.torres[self.hover_torre]:
+                            self.torre_origen = self.hover_torre
+                    else:
+                        if self.juego.mover_disco(self.torre_origen, self.hover_torre):
+                            if self.juego.esta_resuelto():
+                                print("¡Felicidades! Has resuelto el puzzle.")
+                        self.torre_origen = None
             
             if evento.type == pygame.KEYDOWN:
                 if evento.key == pygame.K_r:  # Tecla R para reiniciar
