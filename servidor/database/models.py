@@ -45,7 +45,7 @@ def create_tables():
     Base.metadata.create_all(bind=engine)
 
 if __name__ == '__main__':
-    # Para crear las tablas si ejecutas este script directamente
+   
     print("Creando tablas en la base de datos...")
     create_tables()
     print("Tablas creadas.")

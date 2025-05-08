@@ -29,7 +29,3 @@ class DatabaseManager:
         self.db.commit()
         self.db.refresh(score)
         return score
-
-    # Podrías añadir métodos para obtener puntuaciones si fuera necesario
-    # def get_n_reinas_scores(self):
-    #     return self.db.query(NReinasScore).all()
