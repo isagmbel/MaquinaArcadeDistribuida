@@ -2,6 +2,11 @@
 
 Este proyecto implementa una Máquina Arcade distribuida con tres juegos clásicos basados en problemas de álgebra y lógica: el Problema de las N Reinas, el Recorrido del Caballo (Knight's Tour) y las Torres de Hanói. La aplicación sigue una arquitectura cliente-servidor, donde cada juego actúa como un cliente independiente que se comunica con un servidor central para el almacenamiento de los resultados de las partidas.
 
+## Repositorio
+```
+https://github.com/isagmbel/MaquinaArcadeDistribuida
+```
+
 ## Características Principales
 
 *   **Tres Juegos Clásicos:**
