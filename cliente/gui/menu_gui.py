@@ -15,31 +15,96 @@ TAMANO_FUENTE_TITULO = 55
 TAMANO_FUENTE_BOTON = 16 # Reducido para nokiafc22
 TAMANO_FUENTE_DESC = 10  # Reducido para nokiafc22
 
-# --- Colores ---
-# Puedes definir diferentes paletas aquí y cambiar PALETA_ACTUAL
+# --- COLORES! ---
 PALETAS_COLOR = {
     "rosa_pastel": {
         "fondo": (255, 239, 239),
-        "titulo": (255, 105, 180),
-        "boton": (255, 192, 203),
-        "boton_hover": (255, 160, 180),
-        "texto_principal": (100, 70, 80), # Para nombres y descripciones
+        "titulo": (255, 105, 180), # Hot Pink
+        "boton": (255, 192, 203),   # Pink
+        "boton_hover": (255, 160, 180), # Lighter Hot Pink
+        "texto_principal": (100, 70, 80), # Dark Pink/Brownish
         "borde_boton": (255, 105, 180),
-        "sombra_boton": (235, 140, 160) # Sombra más oscura que el hover
+        "sombra_boton": (220, 80, 150)
+    },
+    "rosa_pastel_suave": {
+        "fondo": (255, 240, 245),
+        "titulo": (255, 105, 180),  
+                                  
+        "boton": (255, 182, 193),   
+        "boton_hover": (255, 192, 203), 
+        "texto_principal": (85, 85, 85),  
+                                        
+        "borde_boton": (255, 105, 180), 
+                                     
+        "sombra_boton": (220, 160, 175) 
     },
     "azul_arcade": {
-        "fondo": (20, 30, 40),
-        "titulo": (100, 200, 255),
-        "boton": (50, 80, 120),
-        "boton_hover": (70, 100, 150),
-        "texto_principal": (200, 220, 255),
+        "fondo": (20, 30, 40),      # Dark Blue/Black
+        "titulo": (100, 200, 255),  # Bright Sky Blue
+        "boton": (50, 80, 120),     # Medium Blue
+        "boton_hover": (70, 100, 150), # Slightly Lighter Medium Blue
+        "texto_principal": (200, 220, 255), # Very Light Blue
         "borde_boton": (100, 200, 255),
         "sombra_boton": (30, 50, 80)
+    },
+    "verde_bosque": {
+        "fondo": (230, 245, 230),      # Very Light Green
+        "titulo": (40, 100, 40),       # Dark Forest Green
+        "boton": (120, 180, 120),     # Medium Leaf Green
+        "boton_hover": (140, 200, 140), # Lighter Leaf Green
+        "texto_principal": (30, 70, 30), # Very Dark Green
+        "borde_boton": (60, 120, 60),    # Darker Green for border
+        "sombra_boton": (90, 150, 90)
+    },
+    "naranja_calido": {
+        "fondo": (255, 240, 220),      # Light Peach
+        "titulo": (255, 120, 0),       # Bright Orange
+        "boton": (255, 165, 80),      # Medium Orange
+        "boton_hover": (255, 185, 100), # Lighter Medium Orange
+        "texto_principal": (180, 80, 0), # Burnt Orange/Brown
+        "borde_boton": (255, 140, 50),
+        "sombra_boton": (230, 100, 0)
+    },
+    "morado_medianoche": {
+        "fondo": (40, 30, 50),        # Very Dark Purple
+        "titulo": (200, 150, 255),    # Lavender
+        "boton": (90, 70, 110),       # Medium Dark Purple
+        "boton_hover": (110, 90, 130),  # Lighter Medium Dark Purple
+        "texto_principal": (230, 210, 255), # Very Light Lavender
+        "borde_boton": (150, 120, 180),
+        "sombra_boton": (70, 50, 90)
+    },
+    "gris_moderno": {
+        "fondo": (220, 220, 220),      # Light Gray
+        "titulo": (50, 50, 50),        # Dark Gray
+        "boton": (150, 150, 150),     # Medium Gray
+        "boton_hover": (170, 170, 170), # Lighter Medium Gray
+        "texto_principal": (30, 30, 30), # Nearly Black
+        "borde_boton": (100, 100, 100),  # Darker Gray for border
+        "sombra_boton": (120, 120, 120)
+    },
+    "retro_gamer": {
+        "fondo": (0, 0, 0),            # Black
+        "titulo": (0, 255, 0),         # Bright Green (Estilo monitor antiguo)
+        "boton": (50, 50, 50),         # Dark Grey
+        "boton_hover": (80, 80, 80),   # Lighter Dark Grey
+        "texto_principal": (0, 200, 0),  # Medium Green
+        "borde_boton": (0, 150, 0),      # Darker Green
+        "sombra_boton": (30, 30, 30)
+    },
+    "crema_elegante": {
+        "fondo": (245, 245, 220),      # Beige/Cream
+        "titulo": (139, 69, 19),       # SaddleBrown (Marrón oscuro)
+        "boton": (210, 180, 140),     # Tan
+        "boton_hover": (220, 190, 150), # Lighter Tan
+        "texto_principal": (85, 50, 10), # Dark Brown
+        "borde_boton": (160, 100, 40),   # Medium Brown
+        "sombra_boton": (180, 150, 110)
     }
     # Añade más paletas aquí si quieres
 }
 
-PALETA_ACTUAL = "azul_arcade" # Cambia esto a "azul_arcade" u otra que definas
+PALETA_ACTUAL = "rosa_pastel_suave" # Cambia esto a "azul_arcade" u otra que definas
 
 COLORES = PALETAS_COLOR[PALETA_ACTUAL]
 
