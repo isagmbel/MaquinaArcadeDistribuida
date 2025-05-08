@@ -2,12 +2,55 @@ import pygame
 import sys
 import os
 import importlib
-# import subprocess # No se usa
-# import math # No se usa
 from pathlib import Path
+
+# --- CONFIGURACIÓN DE APARIENCIA ---
+
+# --- Fuentes ---
+NOMBRE_FUENTE_PERSONALIZADA = "nokiafc22.ttf"
+# NOMBRE_FUENTE_PERSONALIZADA = "04B_03_.TTF"
+# NOMBRE_FUENTE_PERSONALIZADA = None # Para usar la fuente por defecto de Pygame/Sistema
+
+TAMANO_FUENTE_TITULO = 55
+TAMANO_FUENTE_BOTON = 16 # Reducido para nokiafc22
+TAMANO_FUENTE_DESC = 10  # Reducido para nokiafc22
+
+# --- Colores ---
+# Puedes definir diferentes paletas aquí y cambiar PALETA_ACTUAL
+PALETAS_COLOR = {
+    "rosa_pastel": {
+        "fondo": (255, 239, 239),
+        "titulo": (255, 105, 180),
+        "boton": (255, 192, 203),
+        "boton_hover": (255, 160, 180),
+        "texto_principal": (100, 70, 80), # Para nombres y descripciones
+        "borde_boton": (255, 105, 180),
+        "sombra_boton": (235, 140, 160) # Sombra más oscura que el hover
+    },
+    "azul_arcade": {
+        "fondo": (20, 30, 40),
+        "titulo": (100, 200, 255),
+        "boton": (50, 80, 120),
+        "boton_hover": (70, 100, 150),
+        "texto_principal": (200, 220, 255),
+        "borde_boton": (100, 200, 255),
+        "sombra_boton": (30, 50, 80)
+    }
+    # Añade más paletas aquí si quieres
+}
+
+PALETA_ACTUAL = "azul_arcade" # Cambia esto a "azul_arcade" u otra que definas
+
+COLORES = PALETAS_COLOR[PALETA_ACTUAL]
+
+# --- FIN CONFIGURACIÓN DE APARIENCIA ---
+
 
 # Obtener la ruta al directorio donde está este script (menu_gui.py)
 SCRIPT_DIR = Path(__file__).resolve().parent
+RUTA_FUENTE_COMPLETA = None
+if NOMBRE_FUENTE_PERSONALIZADA:
+    RUTA_FUENTE_COMPLETA = SCRIPT_DIR / "assets" / "fonts" / NOMBRE_FUENTE_PERSONALIZADA
 
 class MenuGUI:
     def __init__(self, ancho=800, alto=600):
@@ -19,24 +62,40 @@ class MenuGUI:
         self.ventana = pygame.display.set_mode((self.ancho, self.alto))
         pygame.display.set_caption("Arcade")
 
-        # Colores en rosa pastel
-        self.FONDO = (255, 239, 239)
-        self.TITULO = (255, 105, 180)
-        self.BOTON = (255, 192, 203)
-        self.BOTON_HOVER = (255, 160, 180)
-        self.TEXTO = (139, 69, 19)
-        self.BORDE_BOTON = (255, 105, 180)
+        # Asignar colores desde la configuración global
+        self.FONDO = COLORES["fondo"]
+        self.TITULO_COLOR = COLORES["titulo"]
+        self.BOTON_COLOR = COLORES["boton"]
+        self.BOTON_HOVER_COLOR = COLORES["boton_hover"]
+        self.TEXTO_COLOR = COLORES["texto_principal"]
+        self.BORDE_BOTON_COLOR = COLORES["borde_boton"]
+        self.SOMBRA_BOTON_COLOR = COLORES["sombra_boton"]
 
-        # Fuentes
+        # Cargar Fuentes
         try:
-            self.fuente_titulo = pygame.font.Font(None, 60)
-            self.fuente_boton = pygame.font.Font(None, 24)
-            self.fuente_desc = pygame.font.Font(None, 16)
-        except Exception as e:
-            print(f"Error cargando fuente por defecto: {e}. Usando SysFont.")
-            self.fuente_titulo = pygame.font.SysFont('Arial', 60, bold=True)
-            self.fuente_boton = pygame.font.SysFont('Arial', 24)
-            self.fuente_desc = pygame.font.SysFont('Arial', 16)
+            if RUTA_FUENTE_COMPLETA and os.path.exists(RUTA_FUENTE_COMPLETA):
+                print(f"Cargando fuente personalizada: {RUTA_FUENTE_COMPLETA}")
+                self.fuente_titulo = pygame.font.Font(RUTA_FUENTE_COMPLETA, TAMANO_FUENTE_TITULO)
+                self.fuente_boton = pygame.font.Font(RUTA_FUENTE_COMPLETA, TAMANO_FUENTE_BOTON)
+                self.fuente_desc = pygame.font.Font(RUTA_FUENTE_COMPLETA, TAMANO_FUENTE_DESC)
+            elif NOMBRE_FUENTE_PERSONALIZADA:
+                print(f"Advertencia: Fuente '{NOMBRE_FUENTE_PERSONALIZADA}' no encontrada. Usando defecto.")
+                raise pygame.error("Fuente personalizada no encontrada")
+            else:
+                print("Usando fuente por defecto de Pygame (None).")
+                self.fuente_titulo = pygame.font.Font(None, TAMANO_FUENTE_TITULO)
+                self.fuente_boton = pygame.font.Font(None, TAMANO_FUENTE_BOTON)
+                self.fuente_desc = pygame.font.Font(None, TAMANO_FUENTE_DESC)
+        except Exception as e_custom:
+            print(f"Error cargando fuente ({e_custom}). Intentando SysFont.")
+            try:
+                self.fuente_titulo = pygame.font.SysFont('Arial', TAMANO_FUENTE_TITULO, bold=True)
+                self.fuente_boton = pygame.font.SysFont('Arial', TAMANO_FUENTE_BOTON)
+                self.fuente_desc = pygame.font.SysFont('Arial', TAMANO_FUENTE_DESC)
+                print("Usando SysFont 'Arial' como último recurso.")
+            except Exception as e_sys:
+                print(f"Error crítico: No se pudo cargar ninguna fuente ({e_sys}).")
+                raise
 
         # Juegos disponibles
         self.juegos = [
@@ -46,9 +105,7 @@ class MenuGUI:
                 "clase": "NReinasGUI",
                 "descripcion": "Coloca N reinas sin amenazas",
                 "imagen_path": str(SCRIPT_DIR / "assets" / "images" / "iconoReinas.png"),
-                "scale": 1.0,
-                "target_scale": 1.0,
-                "imagen_base_escalada": None # Imagen escalada al tamaño base del botón
+                "scale": 1.0, "target_scale": 1.0, "imagen_base_escalada": None
             },
             {
                 "nombre": "Recorrido Caballo",
@@ -56,9 +113,7 @@ class MenuGUI:
                 "clase": "RecorridoCaballoGUI",
                 "descripcion": "Paseo completo del caballo",
                 "imagen_path": str(SCRIPT_DIR / "assets" / "images" / "iconoCaballo.png"),
-                "scale": 1.0,
-                "target_scale": 1.0,
-                "imagen_base_escalada": None
+                "scale": 1.0, "target_scale": 1.0, "imagen_base_escalada": None
             },
             {
                 "nombre": "Torres Hanoi",
@@ -66,9 +121,7 @@ class MenuGUI:
                 "clase": "TorresHanoiGUI",
                 "descripcion": "Mueve los discos entre torres",
                 "imagen_path": str(SCRIPT_DIR / "assets" / "images" / "iconoHanoi.png"),
-                "scale": 1.0,
-                "target_scale": 1.0,
-                "imagen_base_escalada": None
+                "scale": 1.0, "target_scale": 1.0, "imagen_base_escalada": None
             }
         ]
 
@@ -82,45 +135,34 @@ class MenuGUI:
             try:
                 if os.path.exists(juego["imagen_path"]):
                     imagen_original = pygame.image.load(juego["imagen_path"])
-                    # Convertir para mejor rendimiento y manejo de alfa (opcional pero recomendado)
                     if imagen_original.get_alpha() is not None:
                        imagen_original = imagen_original.convert_alpha()
                     else:
                        imagen_original = imagen_original.convert()
-
-                    # Escalar la imagen al tamaño base del botón para usarla como referencia
                     juego["imagen_base_escalada"] = pygame.transform.smoothscale(
-                        imagen_original,
-                        (self.boton_size, self.boton_size) # Escalar al tamaño completo del botón base
+                        imagen_original, (self.boton_size, self.boton_size)
                     )
                 else:
                     print(f"Advertencia: No se encontró la imagen {juego['imagen_path']}")
-                    # Podrías crear un placeholder aquí si lo deseas
             except Exception as e:
                 print(f"Error al cargar imagen {juego['imagen_path']}: {e}")
 
     def dibujar_menu(self):
         self.ventana.fill(self.FONDO)
-
-        # Dibujar título
-        titulo_sombra = self.fuente_titulo.render("Arcade", True, (255, 150, 180))
-        self.ventana.blit(titulo_sombra, (self.ancho // 2 - titulo_sombra.get_width() // 2 + 3, 53))
-        titulo_principal = self.fuente_titulo.render("Arcade", True, self.TITULO)
+        
+        titulo_principal = self.fuente_titulo.render("Arcade", True, self.TITULO_COLOR)
         self.ventana.blit(titulo_principal, (self.ancho // 2 - titulo_principal.get_width() // 2, 50))
 
         mouse_pos = pygame.mouse.get_pos()
         start_x = (self.ancho - self.total_width) // 2
 
         for i, juego in enumerate(self.juegos):
-            juego["scale"] += (juego["target_scale"] - juego["scale"]) * 0.1 # Animación suave
+            juego["scale"] += (juego["target_scale"] - juego["scale"]) * 0.1
 
             current_scaled_size = int(self.boton_size * juego["scale"])
-            
-            # Posición base del botón (esquina superior izquierda antes de la animación de centrado)
             base_boton_x = start_x + i * (self.boton_size + self.espacio_botones)
             base_boton_y = 180
 
-            # Rect del botón, ajustado para que el escalado sea desde el centro
             boton_rect = pygame.Rect(
                 base_boton_x - (current_scaled_size - self.boton_size) // 2,
                 base_boton_y - (current_scaled_size - self.boton_size) // 2,
@@ -129,133 +171,98 @@ class MenuGUI:
             )
 
             hover = boton_rect.collidepoint(mouse_pos)
-            juego["target_scale"] = 1.1 if hover else 1.0
+            juego["target_scale"] = 1.1 if hover else 1.0 # Reducido el hover para que no sea tan grande
 
-            # Dibujar sombra si está en hover
             if hover:
-                shadow_rect = boton_rect.move(5, 5) # Desplazar para la sombra
-                pygame.draw.rect(self.ventana, (255, 200, 200), shadow_rect, border_radius=15)
+                shadow_rect = boton_rect.move(3, 3) # Sombra más sutil
+                # No usar border_radius para la sombra si el botón principal no lo tiene
+                pygame.draw.rect(self.ventana, self.SOMBRA_BOTON_COLOR, shadow_rect)
 
-            # Dibujar el fondo del botón
-            color_boton = self.BOTON_HOVER if hover else self.BOTON
-            pygame.draw.rect(self.ventana, color_boton, boton_rect, border_radius=15)
+            color_boton_actual = self.BOTON_HOVER_COLOR if hover else self.BOTON_COLOR
+            # No usar border_radius para el fondo del botón
+            pygame.draw.rect(self.ventana, color_boton_actual, boton_rect)
 
-            # Dibujar la imagen del juego para que LLENE el botón animado
             if juego["imagen_base_escalada"]:
-                # Reescalar la imagen base al tamaño actual del botón
                 imagen_a_renderizar = pygame.transform.smoothscale(
                     juego["imagen_base_escalada"],
                     (boton_rect.width, boton_rect.height)
                 )
-                self.ventana.blit(imagen_a_renderizar, boton_rect.topleft) # Blit en la esquina del botón
+                self.ventana.blit(imagen_a_renderizar, boton_rect.topleft)
 
-            # Dibujar el borde del botón encima de la imagen
-            pygame.draw.rect(self.ventana, self.BORDE_BOTON, boton_rect, 3, border_radius=15)
+            # No usar border_radius para el borde del botón
+            pygame.draw.rect(self.ventana, self.BORDE_BOTON_COLOR, boton_rect, 3) # Grosor del borde 3
 
-            # Dibujar nombre del juego
-            nombre_texto = self.fuente_boton.render(juego["nombre"], True, self.TEXTO)
+            nombre_texto = self.fuente_boton.render(juego["nombre"], True, self.TEXTO_COLOR)
             nombre_x = base_boton_x + self.boton_size // 2 - nombre_texto.get_width() // 2
-            nombre_y = base_boton_y + self.boton_size + 5 # Debajo del tamaño original del botón
+            nombre_y = base_boton_y + self.boton_size + 10 
             self.ventana.blit(nombre_texto, (nombre_x, nombre_y))
 
-            # Dibujar descripción
-            desc_texto = self.fuente_desc.render(juego["descripcion"], True, self.TEXTO)
+            desc_texto = self.fuente_desc.render(juego["descripcion"], True, self.TEXTO_COLOR)
             desc_x = base_boton_x + self.boton_size // 2 - desc_texto.get_width() // 2
-            desc_y = nombre_y + nombre_texto.get_height() + 5
+            desc_y = nombre_y + nombre_texto.get_height() + 5 # Reducido espacio
             self.ventana.blit(desc_texto, (desc_x, desc_y))
 
     def lanzar_juego(self, juego_seleccionado):
         print(f"Lanzando juego: {juego_seleccionado['nombre']}")
-        # pygame.quit() # No es ideal si quieres volver al menú fluidamente.
-                      # Los juegos deberían manejar su propio bucle y retornar.
-                      # Si los juegos hacen pygame.quit(), tendrás que reinicializar Pygame aquí.
-        
-        # Guardar estado actual de la pantalla del menú si es necesario, o simplemente ocultarla
-        # current_screen_surface = self.ventana.copy() # Si quisieras restaurarla tal cual
+        pygame.quit() 
 
         try:
             modulo = importlib.import_module(juego_seleccionado["modulo"])
             clase_juego = getattr(modulo, juego_seleccionado["clase"])
-            
-            # Pasar la ventana actual a los juegos puede ser una opción para evitar re-inits de pygame
-            # instancia_juego = clase_juego(self.ventana) 
-            instancia_juego = clase_juego() # Asumiendo que el juego inicializa su propia pantalla o la recibe
-            instancia_juego.ejecutar() # El juego toma el control
+            instancia_juego = clase_juego() 
+            instancia_juego.ejecutar()
 
-            # Al regresar del juego:
-            print(f"Juego {juego_seleccionado['nombre']} terminado. Volviendo al menú.")
-            # Si los juegos no hacen pygame.quit(), el display de Pygame del menú debería seguir activo.
-            # Puede que necesites re-establecer el caption o re-dibujar algo específico.
-            # Si el juego modificó el modo de video, necesitas restaurarlo:
-            self.ventana = pygame.display.set_mode((self.ancho, self.alto))
-            pygame.display.set_caption("Arcade")
-            # Vuelve a cargar fuentes si el juego las desinicializó o hizo pygame.quit()
+            print(f"Juego {juego_seleccionado['nombre']} terminado. Volviendo al menú...")
+            pygame.init() 
+            self.__init__(self.ancho, self.alto) 
+
+        except Exception as e: 
+            print(f"Error durante la ejecución del juego {juego_seleccionado['nombre']} o al volver: {e}")
             try:
-                self.fuente_titulo = pygame.font.Font(None, 60)
-                self.fuente_boton = pygame.font.Font(None, 24)
-                self.fuente_desc = pygame.font.Font(None, 16)
-            except: # Manejo básico por si acaso
-                self.fuente_titulo = pygame.font.SysFont('Arial', 60, bold=True)
-                self.fuente_boton = pygame.font.SysFont('Arial', 24)
-                self.fuente_desc = pygame.font.SysFont('Arial', 16)
-
-
-        except ImportError as e:
-            print(f"Error de importación al lanzar {juego_seleccionado['nombre']}: {e}")
-            print(f"PYTHONPATH: {sys.path}") # Ayuda a depurar problemas de importación
-        except AttributeError as e:
-            print(f"Error de atributo (¿clase no encontrada?) al lanzar {juego_seleccionado['nombre']}: {e}")
-        except Exception as e:
-            print(f"Error general al lanzar {juego_seleccionado['nombre']}: {e}")
-            # Considera no hacer self.__init__() aquí, puede ocultar el error original
-            # Si hay un error crítico, es mejor que el programa falle y muestre el traceback.
-            # Para una mejor UX, podrías mostrar un mensaje de error en la GUI.
+                pygame.init()
+                self.__init__(self.ancho, self.alto)
+            except Exception as e_recovery:
+                print(f"Error crítico al intentar recuperar el menú: {e_recovery}")
+                pygame.quit()
+                sys.exit("No se pudo recuperar el menú.")
 
     def manejar_eventos(self):
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                return False 
 
             if evento.type == pygame.MOUSEBUTTONDOWN:
-                if evento.button == 1: # Botón izquierdo del ratón
+                if evento.button == 1: 
                     mouse_pos = pygame.mouse.get_pos()
                     start_x = (self.ancho - self.total_width) // 2
-
                     for i, juego in enumerate(self.juegos):
-                        # El rect de colisión debe ser el mismo que se usa para dibujar el botón
                         current_scaled_size = int(self.boton_size * juego["scale"])
                         base_boton_x = start_x + i * (self.boton_size + self.espacio_botones)
                         base_boton_y = 180
-                        
                         clickable_rect = pygame.Rect(
                             base_boton_x - (current_scaled_size - self.boton_size) // 2,
                             base_boton_y - (current_scaled_size - self.boton_size) // 2,
-                            current_scaled_size,
-                            current_scaled_size
+                            current_scaled_size, current_scaled_size
                         )
-
                         if clickable_rect.collidepoint(mouse_pos):
                             self.lanzar_juego(juego)
-                            return # Salir del bucle una vez que se lanza un juego
+                            return True 
+        return True
 
     def ejecutar(self):
         reloj = pygame.time.Clock()
         running = True
         while running:
-            self.manejar_eventos() # manejar_eventos puede llamar a sys.exit()
+            if not self.manejar_eventos(): 
+                running = False
+                break 
             self.dibujar_menu()
             pygame.display.flip()
             reloj.tick(60)
-        
-        pygame.quit() # Asegurarse de que Pygame se cierre si el bucle termina por otra razón
+        print("Saliendo de MenuGUI...")
+        pygame.quit()
 
 if __name__ == "__main__":
-    # Este bloque es para probar menu_gui.py directamente.
-    # Si ejecutas desde MAQUINADEARCADE/main.py, este bloque no se ejecuta.
-    # Para pruebas directas, podrías necesitar ajustar sys.path aquí:
-    # ROOT_DIR_FOR_TEST = Path(__file__).resolve().parents[2] # Ir 2 niveles arriba a MAQUINADEARCADE
-    # sys.path.append(str(ROOT_DIR_FOR_TEST))
-    
     menu = MenuGUI()
     menu.ejecutar()
+    sys.exit()
